@@ -1,0 +1,42 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  background: linear-gradient(to bottom, #aee1f9, #f9f9f9); /* snowy sky */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-title {
+  text-align: center;
+  color: #444;
+  text-shadow: 0 0 10px #fff, 0 0 20px #aee1f9;
+  margin: 10px 0;
+  font-size: 2rem;
+}
+
+#gameCanvas {
+  border: 4px solid #77c9f0;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2), 0 0 30px #aee1f9;
+  background: #fff;
+}
+
+.ui {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #222;
+  text-shadow: 0 0 5px #fff;
+}
+
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* allow clicks to go through */
+}
