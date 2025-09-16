@@ -50,5 +50,6 @@ export const tileMapping = {
   12: 'assets/tiles/trees/tree1.png',
   13: 'assets/tiles/trees/tree2.png',
   14: 'assets/tiles/trees/tree3.png',
-  15: 'assets/tiles/snowman.png'
+  15: 'assets/tiles/snowman.png',
+  99: 'assets/tiles/icetiles/icetile1.png' // start tile
 };
