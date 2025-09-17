@@ -1,5 +1,6 @@
 import { Game } from './game.js';
 import { Player } from './player.js';
+import { Bear } from './bear.js';
 import { loadMap } from './utils.js';
 
 const canvas = document.getElementById('gameCanvas');
@@ -7,12 +8,18 @@ const map = await loadMap('maps/map1.txt');
 
 const game = new Game(canvas, map);
 const player = new Player(game);
+const bear = new Bear(game, 10, 10); // place at tile (10,10)
 
 canvas.width = game.viewWidth * game.tileSize;
 canvas.height = game.viewHeight * game.tileSize;
 
 await game.loadTiles();
-game.draw(player);
+
+// Start game loop
+gameLoop();
+
+// Draw player
+game.drawPlayer(player);
 
 // Track pressed keys
 const keysPressed = new Set();
@@ -37,6 +44,16 @@ function updatePlayer() {
 
     if (dx !== 0 || dy !== 0) {
         player.move(dx, dy); // handled in player.js
-        game.draw(player);
+        game.drawPlayer(player);
     }
+}
+
+function gameLoop() {
+
+  // Redraw map and bear
+  game.drawMap();
+  game.drawPlayer(player);
+  game.drawEntities([bear]);
+
+  requestAnimationFrame(gameLoop);
 }

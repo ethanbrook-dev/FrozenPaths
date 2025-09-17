@@ -74,6 +74,7 @@ export class Player {
             this.x = newX;
             this.y = newY;
             this.moving = true;
+            this.updateAnimation();
         } else {
             this.moving = false;
         }
@@ -95,8 +96,6 @@ export class Player {
     }
 
     draw(ctx) {
-        this.updateAnimation();
-
         const tileSize = this.game.tileSize;
         const screenX = (this.x - this.game.cameraX) * tileSize;
         const screenY = (this.y - this.game.cameraY) * tileSize;

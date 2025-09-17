@@ -60,8 +60,6 @@ export class Game {
                 const tile = this.map[mapY][mapX];
                 const img = this.tileImages[tile];
 
-                // Draw snow background
-                this.ctx.fillStyle = '#e0f7ff';
                 this.ctx.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
 
                 // Draw tile image on top
@@ -72,14 +70,14 @@ export class Game {
         }
     }
 
-    draw(player) {
-        // player = instance of Player
-        if (!player) throw new Error('Player instance required for Game.draw()');
-
+    drawPlayer(player) {
         this.updateCamera(player.x, player.y);
-        this.drawMap();
-
-        // Draw player
         player.draw(this.ctx);
+    }
+
+    drawEntities(entities = []) {
+        for (let e of entities) {
+            e.draw(this.ctx);
+        }
     }
 }
