@@ -6,13 +6,14 @@ export class Game {
         this.ctx = canvas.getContext('2d');
         this.tileSize = 32;
 
-        // Real map from main.js (50x50)
         this.map = map;
 
         this.tileImages = {};
 
-        this.viewWidth = 10;
-        this.viewHeight = 10;
+        const viewTileCount = Math.floor(Math.min(window.innerHeight, window.innerWidth) / (this.tileSize * 1.2));
+
+        this.viewWidth = viewTileCount;
+        this.viewHeight = viewTileCount;
         this.cameraX = 0;
         this.cameraY = 0;
     }
