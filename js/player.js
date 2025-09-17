@@ -80,6 +80,10 @@ export class Player {
         }
     }
 
+    collidedWith(entity) {
+        return this.x === entity.x && this.y === entity.y;
+    }
+
     updateAnimation() {
         // Only advance frames if currently moving or holding a key
         if (this.moving) {
