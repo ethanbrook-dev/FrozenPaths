@@ -20,8 +20,7 @@ let selectedTile = null;
 
 // Modal elements
 const modal = document.getElementById("mapSizeModal");
-const widthInput = document.getElementById("mapWidthInput");
-const heightInput = document.getElementById("mapHeightInput");
+const sizeInput = document.getElementById("mapSizeInput");
 const createBtn = document.getElementById("createMapBtn");
 
 // ====== CONFIG ======
@@ -256,16 +255,15 @@ function updateCursor(imgPath, size = tileSize) {
 // ====== Init ======
 // Show modal until user defines map size
 createBtn.addEventListener("click", async () => {
-  const w = parseInt(widthInput.value, 10);
-  const h = parseInt(heightInput.value, 10);
+  const size = parseInt(sizeInput.value, 10);
 
-  if (isNaN(w) || isNaN(h) || w < 1 || h < 1 || w > 10000 || h > 10000) {
-    alert("Width and height must be between 1 and 10000");
+  if (isNaN(size) || size < viewTileCount || size > 10000) {
+    alert(`Map size must be between ${viewTileCount} and 10000`);
     return;
   }
 
-  gridWidth = w;
-  gridHeight = h;
+  gridWidth = size;
+  gridHeight = size;
 
   // Resize canvas
   canvas.width = viewWidth * tileSize;
@@ -279,3 +277,4 @@ createBtn.addEventListener("click", async () => {
   await loadPalette();
   drawGrid();
 });
+
