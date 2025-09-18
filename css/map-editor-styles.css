@@ -41,22 +41,27 @@ header {
   text-align: center;
 }
 
+.buttonWrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.mapSizeRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mapSizeRow input {
+  width: 80px;
+  padding: 4px 6px;
+  font-size: 1rem;
+}
+
 .modalContent h2 {
   margin-top: 0;
   margin-bottom: 15px;
-}
-
-.modalContent label {
-  display: block;
-  margin: 10px 0;
-  font-size: 1rem;
-}
-
-.modalContent input {
-  width: 80px;
-  padding: 5px;
-  font-size: 1rem;
-  margin-left: 5px;
 }
 
 .modalContent button {
