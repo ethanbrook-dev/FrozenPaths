@@ -5,35 +5,45 @@ import { loadMap } from './utils.js';
 
 const canvas = document.getElementById('gameCanvas');
 
-const FPS = 60; // 60 frames per second
+const FPS = 60; 
 let playerUpdateTimer = 0;
 const playerUpdateInterval = FPS / 3;
-
-// Track pressed keys
 const keysPressed = new Set();
 
-// Define enum-like states
 const GameState = Object.freeze({
   RUNNING: 0,
   WON: 1,
-  NEXT_LEVEL: 2,
-  GAME_OVER: 3,
+  GAME_OVER: 2,
 });
 
 let gameState = GameState.RUNNING;
 let winTimer = 0;
 
-// Define levels
-const levels = ["maps/map1.txt", "maps/map2.txt"];
-let currentLevel = 0;
-
 let game, player, bear;
 
-// Load the first level
-await loadLevel(currentLevel);
+// Handle custom map upload
+document.getElementById("customMapInput").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-// Start game loop
-gameLoop();
+  const text = await file.text();
+  const map = text.trim().split('\n').map(line =>
+    line.trim().split(' ').map(num => parseInt(num, 10))
+  );
+
+  const hasStart = map.some(row => row.includes(99));
+  const hasEnd = map.some(row => row.includes(98));
+  if (!hasStart || !hasEnd) {
+    alert("Invalid map: must contain start (99) and end (98).");
+    return;
+  }
+
+  initGame(map);
+});
+
+// Load pre-generated map
+const pregenMap = await loadMap("maps/map1.txt");
+await initGame(pregenMap);
 
 document.addEventListener("keydown", e => keysPressed.add(e.key));
 document.addEventListener("keyup", e => keysPressed.delete(e.key));
@@ -41,25 +51,19 @@ document.addEventListener("keyup", e => keysPressed.delete(e.key));
 function getBearStartTile(map) {
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x] === 98) {
-        return { x, y };
-      }
+      if (map[y][x] === 98) return { x, y };
     }
   }
-  // fallback default
   return { x: 10, y: 10 };
 }
 
-async function loadLevel(levelIndex) {
-  const map = await loadMap(levels[levelIndex]);
+async function initGame(map) {
   game = new Game(canvas, map);
-
   canvas.width = game.viewWidth * game.tileSize;
   canvas.height = game.viewHeight * game.tileSize;
-
   await game.loadTiles();
 
-  player = new Player(game); // auto-uses findStartTile()
+  player = new Player(game);
   const bearStart = getBearStartTile(map);
   bear = new Bear(game, bearStart.x, bearStart.y);
 
@@ -67,28 +71,20 @@ async function loadLevel(levelIndex) {
 }
 
 function updatePlayer() {
-
-  let dx = 0;
-  let dy = 0;
-
+  let dx = 0, dy = 0;
   if (keysPressed.has('ArrowUp')) dy -= 1;
   if (keysPressed.has('ArrowDown')) dy += 1;
   if (keysPressed.has('ArrowLeft')) dx -= 1;
   if (keysPressed.has('ArrowRight')) dx += 1;
-
-  if (dx !== 0 || dy !== 0) {
-    player.move(dx, dy);
-  }
+  if (dx !== 0 || dy !== 0) player.move(dx, dy);
 }
 
 function gameLoop() {
   if (gameState === GameState.RUNNING) {
     game.updateCamera(player.x, player.y);
-
-    // Only update player once every interval
     playerUpdateTimer++;
     if (playerUpdateTimer >= playerUpdateInterval) {
-      updatePlayer(); // moves player based on keys pressed
+      updatePlayer();
       playerUpdateTimer = 0;
     }
 
@@ -100,9 +96,9 @@ function gameLoop() {
 
     if (player.collidedWith(bear)) {
       gameState = GameState.WON;
-      winTimer = 2 * FPS;
+      winTimer = 3 * FPS; // show win message for 3 seconds
     }
-  }
+  } 
   else if (gameState === GameState.WON) {
     game.ctx.fillStyle = "rgba(0,0,0,0.6)";
     game.ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -111,17 +107,11 @@ function gameLoop() {
     game.ctx.font = "24px Arial";
     game.ctx.textAlign = "center";
     game.ctx.fillText("You Win!", canvas.width / 2, canvas.height / 2);
+    game.ctx.fillText("Reload to play again.", canvas.width / 2, canvas.height / 2 + 30);
 
     winTimer--;
     if (winTimer <= 0) {
-      currentLevel++;
-      if (currentLevel < levels.length) {
-        (async () => {
-          await loadLevel(currentLevel);
-        })();
-      } else {
-        gameState = GameState.GAME_OVER;
-      }
+      gameState = GameState.GAME_OVER;
     }
   }
 
@@ -132,8 +122,11 @@ function gameLoop() {
     game.ctx.fillStyle = "yellow";
     game.ctx.font = "28px Arial";
     game.ctx.textAlign = "center";
-    game.ctx.fillText("You finished all levels!", canvas.width / 2, canvas.height / 2);
+    game.ctx.fillText("You finished the map!", canvas.width / 2, canvas.height / 2);
+    game.ctx.fillText("Reload to play again.", canvas.width / 2, canvas.height / 2 + 30);
   }
 
   requestAnimationFrame(gameLoop);
 }
+
+gameLoop();
