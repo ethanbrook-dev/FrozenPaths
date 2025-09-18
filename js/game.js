@@ -10,7 +10,7 @@ export class Game {
 
         this.tileImages = {};
 
-        const viewTileCount = Math.floor(Math.min(window.innerHeight, window.innerWidth) / (this.tileSize * 1.2));
+        const viewTileCount = Math.floor(Math.min(window.innerHeight, window.innerWidth) / (this.tileSize * 1.2)) - 1;
 
         this.viewWidth = viewTileCount;
         this.viewHeight = viewTileCount;
@@ -40,33 +40,38 @@ export class Game {
     }
 
     updateCamera(playerX, playerY) {
-        // Center camera on player position
         this.cameraX = playerX - Math.floor(this.viewWidth / 2);
         this.cameraY = playerY - Math.floor(this.viewHeight / 2);
 
-        // Clamp to map bounds
         this.cameraX = Math.max(0, Math.min(this.cameraX, this.map[0].length - this.viewWidth));
         this.cameraY = Math.max(0, Math.min(this.cameraY, this.map.length - this.viewHeight));
     }
 
     drawMap() {
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = "#ddd";
+
         for (let y = 0; y < this.viewHeight; y++) {
             for (let x = 0; x < this.viewWidth; x++) {
                 const mapX = x + this.cameraX;
                 const mapY = y + this.cameraY;
 
-                // Safety check
                 if (mapY >= this.map.length || mapX >= this.map[0].length) continue;
 
+                this.ctx.strokeRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+
                 const tile = this.map[mapY][mapX];
+
                 const img = this.tileImages[tile];
 
-                this.ctx.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
-
-                // Draw tile image on top
-                if (img) {
-                    this.ctx.drawImage(img, x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+                if (!img) {
+                    // Skip drawing if image missing
+                    continue;
                 }
+
+                this.ctx.drawImage(img, x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
             }
         }
     }
