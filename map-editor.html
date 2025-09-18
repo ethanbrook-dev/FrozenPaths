@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <title>Map Editor</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <title>Map Editor</title>
+  <link rel="stylesheet" href="css/map-editor-styles.css">
 </head>
 
 <body>
-    <h1>🛠️ Map Editor</h1>
-    <p>Here you can draw maps and export them as .txt</p>
+  <!-- Header with map name -->
+  <header>
+    <h1 class="editor-title">🛠️ Map Editor</h1>
+    <input id="mapName" type="text" value="untitled" />
+  </header>
 
-    <div id="editorContainer"></div>
+  <!-- Main editor area -->
+  <div id="editorMain">
+    <!-- Canvas (grid to paint on) -->
+    <canvas id="editorCanvas"></canvas>
+
+    <!-- Tile Palette -->
+    <div id="tilePalette">
+      <!-- Filled by map-editor.js -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
     <button id="saveMapBtn">💾 Save Map</button>
+  </footer>
 
-    <script type="module" src="js/map-editor.js"></script>
+  <!-- Logic -->
+  <script type="module" src="js/map-editor.js"></script>
 </body>
-
 </html>
