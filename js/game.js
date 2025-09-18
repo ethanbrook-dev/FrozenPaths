@@ -10,6 +10,7 @@ export class Game {
     constructor(canvas, map) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.tileSize = TILE_SIZE;
 
         this.map = map;
 
@@ -31,11 +32,11 @@ export class Game {
             if (tileMapping[tile]) {
                 const img = await loadImage(tileMapping[tile]);
                 const canvasImg = document.createElement('canvas');
-                canvasImg.width = TILE_SIZE;
-                canvasImg.height = TILE_SIZE;
+                canvasImg.width = this.tileSize;
+                canvasImg.height = this.tileSize;
                 const ctx = canvasImg.getContext('2d');
                 ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(img, 0, 0, TILE_SIZE, TILE_SIZE);
+                ctx.drawImage(img, 0, 0, this.tileSize, this.tileSize);
 
                 const finalImg = new Image();
                 finalImg.src = canvasImg.toDataURL();
@@ -65,7 +66,7 @@ export class Game {
 
                 if (mapY >= this.map.length || mapX >= this.map[0].length) continue;
 
-                this.ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                this.ctx.strokeRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
 
                 const tile = this.map[mapY][mapX];
 
@@ -76,7 +77,7 @@ export class Game {
                     continue;
                 }
 
-                this.ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                this.ctx.drawImage(img, x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
             }
         }
     }
