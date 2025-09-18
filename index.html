@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,23 +9,37 @@
   <!-- Snowy background + glow effect -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
-  <!-- Overlay effects like snow, glow, etc. -->
-  <div id="overlay">
-    <!-- Could be used for particles, hearts, glow -->
-  </div>
+  <div id="overlay"></div>
 
   <h1 class="game-title">🐧 Penguin Love Maze 🐻</h1>
-  
+
   <!-- Canvas -->
   <canvas id="gameCanvas"></canvas>
 
-  <!-- Score / messages -->
+  <!-- UI -->
   <div class="ui">
     <p id="message">Find the bear!</p>
+
+    <!-- New Buttons -->
+    <div class="menu">
+      <button id="createMapBtn" class="file-btn">🛠️ Create Custom Map</button>
+
+      <label for="customMapInput" class="file-btn">📂 Load Custom Map</label>
+      <input type="file" id="customMapInput" accept=".txt" hidden />
+    </div>
   </div>
 
-  <!-- Main JS module -->
+  <!-- Main JS -->
   <script type="module" src="js/main.js"></script>
+
+  <!-- Map Editor redirect logic -->
+  <script>
+    document.getElementById('createMapBtn').addEventListener('click', () => {
+      window.location.href = "map-editor.html";
+    });
+  </script>
 </body>
+
 </html>

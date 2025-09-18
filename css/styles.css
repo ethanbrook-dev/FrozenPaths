@@ -9,6 +9,23 @@ body {
   justify-content: center;
 }
 
+.file-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #4a90e2;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  border: none;
+  outline: none;
+  text-decoration: none;
+}
+
+.file-btn:hover {
+  background: #357abd;
+}
+
 .game-title {
   text-align: center;
   color: #444;

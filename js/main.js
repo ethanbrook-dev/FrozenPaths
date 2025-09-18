@@ -29,6 +29,38 @@ let currentLevel = 0;
 
 let game, player, bear;
 
+// Handle custom map upload
+document.getElementById("customMapInput").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const text = await file.text();
+  const map = text.trim().split('\n').map(line =>
+    line.trim().split(' ').map(num => parseInt(num, 10))
+  );
+
+  // Validate map contains 98 & 99
+  const hasStart = map.some(row => row.includes(99));
+  const hasEnd = map.some(row => row.includes(98));
+  if (!hasStart || !hasEnd) {
+    alert("Invalid map: must contain start (99) and end (98).");
+    return;
+  }
+
+  // Load custom map
+  game = new Game(canvas, map);
+  canvas.width = game.viewWidth * game.tileSize;
+  canvas.height = game.viewHeight * game.tileSize;
+  await game.loadTiles();
+
+  player = new Player(game);
+  const bearStart = getBearStartTile(map);
+  bear = new Bear(game, bearStart.x, bearStart.y);
+
+  // Reset state
+  gameState = GameState.RUNNING;
+});
+
 // Load the first level
 await loadLevel(currentLevel);
 
