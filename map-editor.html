@@ -1,35 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Map Editor</title>
-  <link rel="stylesheet" href="css/map-editor-styles.css">
+    <meta charset="UTF-8">
+    <title>Map Editor</title>
+    <link rel="stylesheet" href="css/map-editor-styles.css">
 </head>
 
 <body>
-  <!-- Header with map name -->
-  <header>
-    <h1 class="editor-title">🛠️ Map Editor</h1>
-    <input id="mapName" type="text" value="untitled" />
-  </header>
+    <header>
+        <h1 class="editor-title">Map Editor</h1>
+        <input id="mapName" type="text" placeholder="Map Name" />
+    </header>
 
-  <!-- Main editor area -->
-  <div id="editorMain">
-    <!-- Canvas (grid to paint on) -->
-    <canvas id="editorCanvas"></canvas>
+    <main id="editorMain">
+        <canvas id="editorCanvas"></canvas>
+        <div id="tilePalette"></div>
+    </main>
 
-    <!-- Tile Palette -->
-    <div id="tilePalette">
-      <!-- Filled by map-editor.js -->
+    <footer>
+        <button id="saveMapBtn">Save Map</button>
+    </footer>
+
+    <!-- Map Size Modal -->
+    <div id="mapSizeModal" class="modal">
+        <div class="modalContent">
+            <h2>Create New Map</h2>
+            <label>
+                Width:
+                <input id="mapWidthInput" type="number" value="25" min="1" max="10000">
+            </label>
+            <label>
+                Height:
+                <input id="mapHeightInput" type="number" value="25" min="1" max="10000">
+            </label>
+            <button id="createMapBtn">Create Map</button>
+        </div>
     </div>
-  </div>
 
-  <!-- Footer -->
-  <footer>
-    <button id="saveMapBtn">💾 Save Map</button>
-  </footer>
-
-  <!-- Logic -->
-  <script type="module" src="js/map-editor.js"></script>
+    <script type="module" src="./js/map-editor.js"></script>
 </body>
+
 </html>

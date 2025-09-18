@@ -20,6 +20,60 @@ header {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+.modalContent h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.modalContent label {
+  display: block;
+  margin: 10px 0;
+  font-size: 1rem;
+}
+
+.modalContent input {
+  width: 80px;
+  padding: 5px;
+  font-size: 1rem;
+  margin-left: 5px;
+}
+
+.modalContent button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #27ae60;
+  color: white;
+  cursor: pointer;
+}
+
+.modalContent button:hover {
+  background: #2ecc71;
+}
+
 .editor-title {
     text-align: center;
     color: #444;
@@ -42,70 +96,74 @@ header {
 }
 
 #editorMain {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    padding: 10px;
-    gap: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start; /* top align */
+  justify-content: center;
+  padding: 10px;
+  gap: 10px;
 }
 
 #editorCanvas {
-    background: white;
-    border: 4px solid #77c9f0;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2), 0 0 30px #aee1f9;
-    flex-shrink: 0;
+  background: white;
+  border: 4px solid #77c9f0;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2), 0 0 30px #aee1f9;
+  flex-shrink: 0;
 }
 
 #tilePalette {
-    flex: 1;
-    overflow-y: auto;
-    background: rgba(255, 255, 255, 0.9);
-    border: 3px solid #77c9f0;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.15), 0 0 25px #aee1f9;
-    padding: 10px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid #77c9f0;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  max-height: 90%;
+  overflow-y: auto;
 }
 
-.tile-option {
-    border: 2px solid transparent;
-    padding: 5px;
-    text-align: center;
-    cursor: pointer;
-    background: white;
-    border-radius: 8px;
-    transition: 0.2s;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+.tileOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid transparent; /* thinner border */
+  padding: 2px; /* less padding */
+  cursor: pointer;
+  background: #f9f9f9;
+  border-radius: 4px;
+  font-size: 0.7rem; /* smaller label font */
 }
 
-.tile-option:hover {
-    border-color: #3498db;
-    box-shadow: 0 0 10px #aee1f9;
+.tileOption.selected {
+  border-color: #007bff;
+  background: #eaf3ff;
 }
 
-.tile-option.selected {
-    border-color: #e74c3c;
-    background: #fcecec;
-    box-shadow: 0 0 12px #e74c3c;
+.tileOption img,
+.tileOption .eraserImg {
+  width: 24px;  /* smaller icons */
+  height: 24px;
 }
 
-.tile-option img {
-    display: block;
-    margin: 0 auto;
-    width: 48px;
-    height: 48px;
-    image-rendering: pixelated;
+.eraserImg {
+  font-size: 18px; /* smaller broom emoji */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 footer {
-    padding: 12px;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 footer button {
