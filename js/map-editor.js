@@ -1,5 +1,6 @@
 // js/map-editor.js
 import { tileMapping, loadImage } from './utils.js';
+import { calculateViewTileCount, TILE_SIZE } from './game.js';
 
 const canvas = document.getElementById("editorCanvas");
 const ctx = canvas.getContext("2d");
@@ -24,8 +25,7 @@ const sizeInput = document.getElementById("mapSizeInput");
 const createBtn = document.getElementById("createMapBtn");
 
 // ====== CONFIG ======
-const tileSize = 32;
-const viewTileCount = Math.floor(Math.min(window.innerHeight, window.innerWidth) / (tileSize * 1.2));
+const viewTileCount = calculateViewTileCount();
 let viewWidth = viewTileCount;
 let viewHeight = viewTileCount;
 
@@ -50,11 +50,11 @@ function drawGrid() {
 
       if (mapX >= gridWidth || mapY >= gridHeight) continue;
 
-      ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
+      ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
       const tile = grid[mapY][mapX];
       if (tile !== 0 && tileImages[tile]) {
-        ctx.drawImage(tileImages[tile], x * tileSize, y * tileSize, tileSize, tileSize);
+        ctx.drawImage(tileImages[tile], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
     }
   }
@@ -99,8 +99,8 @@ async function loadPalette() {
 
     const tileImg = document.createElement("img");
     tileImg.src = path;
-    tileImg.width = tileSize;
-    tileImg.height = tileSize;
+    tileImg.width = TILE_SIZE;
+    tileImg.height = TILE_SIZE;
 
     const label = document.createElement("p");
     label.innerText = getTileLabel(num);
@@ -125,8 +125,8 @@ async function loadPalette() {
 
   const eraserImg = document.createElement("img");
   eraserImg.src = "assets/map-editor/eraser.png";
-  eraserImg.width = tileSize;
-  eraserImg.height = tileSize;
+  eraserImg.width = TILE_SIZE;
+  eraserImg.height = TILE_SIZE;
 
   const eraserLabel = document.createElement("p");
   eraserLabel.innerText = "Eraser";
@@ -159,8 +159,8 @@ canvas.addEventListener("mousemove", e => {
 function paintAtEvent(e) {
   if (selectedTile === null) return;
   const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) / tileSize);
-  const y = Math.floor((e.clientY - rect.top) / tileSize);
+  const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
+  const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
 
   const mapX = x + cameraX;
   const mapY = y + cameraY;
@@ -234,7 +234,7 @@ function getTileLabel(num) {
   return `Tile ${num}`;
 }
 
-function updateCursor(imgPath, size = tileSize) {
+function updateCursor(imgPath, size = TILE_SIZE) {
   if (!imgPath) {
     canvas.style.cursor = "default";
     return;
@@ -266,8 +266,8 @@ createBtn.addEventListener("click", async () => {
   gridHeight = size;
 
   // Resize canvas
-  canvas.width = viewWidth * tileSize;
-  canvas.height = viewHeight * tileSize;
+  canvas.width = viewWidth * TILE_SIZE;
+  canvas.height = viewHeight * TILE_SIZE;
 
   // Init empty grid
   grid = Array.from({ length: gridHeight }, () => Array(gridWidth).fill(0));

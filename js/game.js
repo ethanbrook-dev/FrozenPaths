@@ -1,16 +1,21 @@
 import { tileMapping, loadImage } from './utils.js';
 
+export const TILE_SIZE = 32;
+
+export function calculateViewTileCount() {
+    return Math.floor(Math.min(window.innerHeight, window.innerWidth) / (TILE_SIZE * 1.2)) - 2;
+}
+
 export class Game {
     constructor(canvas, map) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        this.tileSize = 32;
 
         this.map = map;
 
         this.tileImages = {};
 
-        const viewTileCount = Math.floor(Math.min(window.innerHeight, window.innerWidth) / (this.tileSize * 1.2)) - 2;
+        const viewTileCount = calculateViewTileCount();
 
         this.viewWidth = viewTileCount;
         this.viewHeight = viewTileCount;
@@ -26,11 +31,11 @@ export class Game {
             if (tileMapping[tile]) {
                 const img = await loadImage(tileMapping[tile]);
                 const canvasImg = document.createElement('canvas');
-                canvasImg.width = this.tileSize;
-                canvasImg.height = this.tileSize;
+                canvasImg.width = TILE_SIZE;
+                canvasImg.height = TILE_SIZE;
                 const ctx = canvasImg.getContext('2d');
                 ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(img, 0, 0, this.tileSize, this.tileSize);
+                ctx.drawImage(img, 0, 0, TILE_SIZE, TILE_SIZE);
 
                 const finalImg = new Image();
                 finalImg.src = canvasImg.toDataURL();
@@ -60,7 +65,7 @@ export class Game {
 
                 if (mapY >= this.map.length || mapX >= this.map[0].length) continue;
 
-                this.ctx.strokeRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+                this.ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
                 const tile = this.map[mapY][mapX];
 
@@ -71,7 +76,7 @@ export class Game {
                     continue;
                 }
 
-                this.ctx.drawImage(img, x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+                this.ctx.drawImage(img, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
             }
         }
     }
