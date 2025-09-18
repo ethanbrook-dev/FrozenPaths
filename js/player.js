@@ -5,10 +5,10 @@ export class Player {
         this.x = start.x;
         this.y = start.y;
 
-        this.direction = 'forward';  
-        this.frame = 1;               
-        this.frameTimer = 0;          
-        this.frameInterval = 1;       
+        this.direction = 'forward';
+        this.frame = 1;
+        this.frameTimer = 0;
+        this.frameInterval = 1;
 
         this.moving = false;
 
@@ -69,8 +69,8 @@ export class Player {
             }
         }
 
-        // Only move if tile 5
-        if (map[newY][newX] === 5) {
+        // Only move if tile 5 or 98
+        if (map[newY][newX] === 5 || map[newY][newX] === 98) {
             this.x = newX;
             this.y = newY;
             this.moving = true;
