@@ -24,7 +24,7 @@ let gameState = GameState.RUNNING;
 let winTimer = 0;
 
 // Define levels
-const levels = ["maps/map1.txt"];
+const levels = ["maps/map1.txt", "maps/map2.txt"];
 let currentLevel = 0;
 
 let game, player, bear;
