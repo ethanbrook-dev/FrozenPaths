@@ -10,7 +10,7 @@ export class Game {
 
         this.tileImages = {};
 
-        const viewTileCount = Math.floor(Math.min(window.innerHeight, window.innerWidth) / (this.tileSize * 1.2)) - 1;
+        const viewTileCount = Math.floor(Math.min(window.innerHeight, window.innerWidth) / (this.tileSize * 1.2)) - 2;
 
         this.viewWidth = viewTileCount;
         this.viewHeight = viewTileCount;
