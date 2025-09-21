@@ -1,6 +1,8 @@
 // js/map-editor.js
 import { tileMapping, loadImage } from './utils.js';
 import { calculateViewTileCount, TILE_SIZE } from './game.js';
+import { updateCursor } from './cursor.js';
+import { createTool } from './createTool.js';
 
 const canvas = document.getElementById("editorCanvas");
 const ctx = canvas.getContext("2d");
@@ -35,7 +37,6 @@ let cameraY = 0;
 
 // Camera scroll settings
 const scrollSpeed = 1; // tiles per tick
-const edgeThreshold = 10; // px near edge where scrolling starts
 
 // ====== Draw Grid with Camera ======
 function drawGrid() {
@@ -47,45 +48,89 @@ function drawGrid() {
     for (let x = 0; x < viewWidth; x++) {
       const mapX = x + cameraX;
       const mapY = y + cameraY;
-
       if (mapX >= gridWidth || mapY >= gridHeight) continue;
-
       ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-
       const tile = grid[mapY][mapX];
       if (tile !== 0 && tileImages[tile]) {
         ctx.drawImage(tileImages[tile], x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
     }
   }
+
+  // Draw scroll buttons/arrows
+  ctx.fillStyle = "rgba(0,0,0,0.2)";
+  scrollButtons.forEach(btn => {
+    const x = typeof btn.x === 'function' ? btn.x() : btn.x;
+    const y = typeof btn.y === 'function' ? btn.y() : btn.y;
+    const w = typeof btn.w === 'function' ? btn.w() : btn.w;
+    const h = typeof btn.h === 'function' ? btn.h() : btn.h;
+    ctx.fillRect(x, y, w, h);
+
+    // Draw simple arrows
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    if (btn.dir === 'up') {
+      ctx.moveTo(x + w / 2, y + 5);
+      ctx.lineTo(x + w / 2 - 5, y + 15);
+      ctx.lineTo(x + w / 2 + 5, y + 15);
+    }
+    if (btn.dir === 'down') {
+      ctx.moveTo(x + w / 2, y + h - 5);
+      ctx.lineTo(x + w / 2 - 5, y + h - 15);
+      ctx.lineTo(x + w / 2 + 5, y + h - 15);
+    }
+    if (btn.dir === 'left') {
+      ctx.moveTo(x + 5, y + h / 2);
+      ctx.lineTo(x + 15, y + h / 2 - 5);
+      ctx.lineTo(x + 15, y + h / 2 + 5);
+    }
+    if (btn.dir === 'right') {
+      ctx.moveTo(x + w - 5, y + h / 2);
+      ctx.lineTo(x + w - 15, y + h / 2 - 5);
+      ctx.lineTo(x + w - 15, y + h / 2 + 5);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+  });
 }
 
-// Camera scrolling (horiz and vertic)
-canvas.addEventListener("mousemove", e => {
-  if (isMouseDown) paintAtEvent(e);
+// ====== Scroll Buttons Config ======
+const scrollButtons = [
+  { dir: 'up', x: 0, y: 0, w: () => canvas.width, h: () => TILE_SIZE },
+  { dir: 'down', x: 0, y: () => canvas.height - TILE_SIZE, w: () => canvas.width, h: () => TILE_SIZE },
+  { dir: 'left', x: 0, y: 0, w: () => TILE_SIZE, h: () => canvas.height },
+  { dir: 'right', x: () => canvas.width - TILE_SIZE, y: 0, w: () => TILE_SIZE, h: () => canvas.height }
+];
 
+let scrollInterval = null;
+function startScrolling(direction) {
+  if (scrollInterval) clearInterval(scrollInterval);
+  scrollInterval = setInterval(() => {
+    if (direction === 'up') cameraY = Math.max(0, cameraY - scrollSpeed);
+    if (direction === 'down') cameraY = Math.min(gridHeight - viewHeight, cameraY + scrollSpeed);
+    if (direction === 'left') cameraX = Math.max(0, cameraX - scrollSpeed);
+    if (direction === 'right') cameraX = Math.min(gridWidth - viewWidth, cameraX + scrollSpeed);
+    drawGrid();
+  }, 30);
+}
+function stopScrolling() { if (scrollInterval) clearInterval(scrollInterval); }
+
+// Mouse for scroll buttons
+canvas.addEventListener("mousedown", e => {
   const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
-
-  // Scroll if cursor is near left/right edge
-  if (mouseX < edgeThreshold) {
-    cameraX = Math.max(0, cameraX - scrollSpeed);
-    drawGrid();
-  } else if (mouseX > canvas.width - edgeThreshold) {
-    cameraX = Math.min(gridWidth - viewWidth, cameraX + scrollSpeed);
-    drawGrid();
-  }
-
-  // Scroll if cursor is near top/bottom edge
-  if (mouseY < edgeThreshold) {
-    cameraY = Math.max(0, cameraY - scrollSpeed);
-    drawGrid();
-  } else if (mouseY > canvas.height - edgeThreshold) {
-    cameraY = Math.min(gridHeight - viewHeight, cameraY + scrollSpeed);
-    drawGrid();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  for (const btn of scrollButtons) {
+    const x = typeof btn.x === 'function' ? btn.x() : btn.x;
+    const y = typeof btn.y === 'function' ? btn.y() : btn.y;
+    const w = typeof btn.w === 'function' ? btn.w() : btn.w;
+    const h = typeof btn.h === 'function' ? btn.h() : btn.h;
+    if (mx >= x && mx <= x + w && my >= y && my <= y + h) startScrolling(btn.dir);
   }
 });
+canvas.addEventListener("mouseup", stopScrolling);
+canvas.addEventListener("mouseleave", stopScrolling);
 
 // ====== Load Palette ======
 async function loadPalette() {
@@ -93,125 +138,70 @@ async function loadPalette() {
     const container = document.createElement("div");
     container.className = "tileOption";
     container.dataset.tile = num;
-
     const img = await loadImage(path);
     tileImages[num] = img;
-
     const tileImg = document.createElement("img");
     tileImg.src = path;
     tileImg.width = TILE_SIZE;
     tileImg.height = TILE_SIZE;
-
     const label = document.createElement("p");
     label.innerText = getTileLabel(num);
-
     container.appendChild(tileImg);
     container.appendChild(label);
-
     container.addEventListener("click", () => {
       document.querySelectorAll(".tileOption").forEach(opt => opt.classList.remove("selected"));
       container.classList.add("selected");
       selectedTile = parseInt(num, 10);
-      updateCursor(path);
+      updateCursor(canvas, path);
     });
-
     paletteDiv.appendChild(container);
   }
 
-  // Eraser
-  const eraser = document.createElement("div");
-  eraser.className = "tileOption eraser";
-  eraser.dataset.tile = "0";
-
-  const eraserImg = document.createElement("img");
-  eraserImg.src = "assets/map-editor/eraser.png";
-  eraserImg.width = TILE_SIZE;
-  eraserImg.height = TILE_SIZE;
-
-  const eraserLabel = document.createElement("p");
-  eraserLabel.innerText = "Eraser";
-
-  eraser.appendChild(eraserImg);
-  eraser.appendChild(eraserLabel);
-
-  eraser.addEventListener("click", () => {
-    document.querySelectorAll(".tileOption").forEach(opt => opt.classList.remove("selected"));
-    eraser.classList.add("selected");
-    selectedTile = 0;
-    updateCursor(null);
-  });
-
-  paletteDiv.appendChild(eraser);
+  createTool(canvas, paletteDiv, "Cursor", "assets/map-editor/cursor.png", null, tile => selectedTile = tile);
+  createTool(canvas, paletteDiv, "Eraser", "assets/map-editor/eraser.png", 0, tile => selectedTile = tile);
 }
 
 // ====== Handle Painting ======
 let isMouseDown = false;
-
-canvas.addEventListener("mousedown", e => {
-  isMouseDown = true;
-  paintAtEvent(e);
-});
+canvas.addEventListener("mousedown", e => { isMouseDown = true; paintAtEvent(e); });
 canvas.addEventListener("mouseup", () => (isMouseDown = false));
-canvas.addEventListener("mousemove", e => {
-  if (isMouseDown) paintAtEvent(e);
-});
+canvas.addEventListener("mousemove", e => { if (isMouseDown) paintAtEvent(e); });
 
 function paintAtEvent(e) {
   if (selectedTile === null) return;
   const rect = canvas.getBoundingClientRect();
   const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
   const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
-
   const mapX = x + cameraX;
   const mapY = y + cameraY;
-
   if (mapX >= 0 && mapX < gridWidth && mapY >= 0 && mapY < gridHeight) {
-
-    // Prevent multiple Start (99) or End (98)
     if (selectedTile === 99 || selectedTile === 98) {
-      for (let row = 0; row < gridHeight; row++) {
-        for (let col = 0; col < gridWidth; col++) {
-          if (grid[row][col] === selectedTile) {
-            grid[row][col] = 0; // clear the previous tile
-          }
-        }
-      }
+      for (let row = 0; row < gridHeight; row++)
+        for (let col = 0; col < gridWidth; col++)
+          if (grid[row][col] === selectedTile) grid[row][col] = 0;
     }
-
     grid[mapY][mapX] = selectedTile;
     drawGrid();
   }
 }
 
+// ====== Save Map ======
 saveBtn.addEventListener("click", () => {
-  const defaultTile = 5; // Tile to replace empty ones (walkable)
+  const defaultTile = 5;
   const emptyTiles = grid.flat().filter(n => n === 0).length;
-
   if (emptyTiles > 0) {
-    const confirmSwap = confirm(
-      `There are ${emptyTiles} empty tiles. ` +
-      `They will be replaced with the default walkable tile before saving. Continue?`
-    );
-    if (!confirmSwap) return; // stop saving if user cancels
-
-    // Swap all empty tiles
-    for (let y = 0; y < grid.length; y++) {
-      for (let x = 0; x < grid[y].length; x++) {
+    const confirmSwap = confirm(`There are ${emptyTiles} empty tiles. They will be replaced with default tile. Continue?`);
+    if (!confirmSwap) return;
+    for (let y = 0; y < grid.length; y++)
+      for (let x = 0; x < grid[y].length; x++)
         if (grid[y][x] === 0) grid[y][x] = defaultTile;
-      }
-    }
   }
-
   saveMapAndDownload();
 });
 
-// ====== Helpers ======
 function saveMapAndDownload() {
   const name = mapNameInput.value.trim() || "untitled";
-  const text = grid
-    .map(row => row.map(n => String(n).padStart(2, "0")).join(" "))
-    .join("\n");
-
+  const text = grid.map(row => row.map(n => String(n).padStart(2, "0")).join(" ")).join("\n");
   const blob = new Blob([text], { type: "text/plain" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
@@ -234,47 +224,18 @@ function getTileLabel(num) {
   return `Tile ${num}`;
 }
 
-function updateCursor(imgPath, size = TILE_SIZE) {
-  if (!imgPath) {
-    canvas.style.cursor = "default";
-    return;
-  }
-
-  const img = new Image();
-  img.src = imgPath;
-  img.onload = () => {
-    const tmpCanvas = document.createElement("canvas");
-    tmpCanvas.width = size;
-    tmpCanvas.height = size;
-    const ctx2 = tmpCanvas.getContext("2d");
-    ctx2.drawImage(img, 0, 0, size, size);
-    canvas.style.cursor = `url(${tmpCanvas.toDataURL()}) ${size / 2} ${size / 2}, auto`;
-  };
-}
-
 // ====== Init ======
-// Show modal until user defines map size
 createBtn.addEventListener("click", async () => {
+  console.log("Map created ...");
   const size = parseInt(sizeInput.value, 10);
-
   if (isNaN(size) || size < viewTileCount || size > 10000) {
-    alert(`Map size must be between ${viewTileCount} and 10000`);
-    return;
+    alert(`Map size must be between ${viewTileCount} and 10000`); return;
   }
-
-  gridWidth = size;
-  gridHeight = size;
-
-  // Resize canvas
+  gridWidth = size; gridHeight = size;
   canvas.width = viewWidth * TILE_SIZE;
   canvas.height = viewHeight * TILE_SIZE;
-
-  // Init empty grid
   grid = Array.from({ length: gridHeight }, () => Array(gridWidth).fill(0));
-
-  modal.style.display = "none"; // hide modal
-
+  modal.style.display = "none";
   await loadPalette();
   drawGrid();
 });
-

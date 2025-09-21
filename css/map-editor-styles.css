@@ -148,17 +148,9 @@ header {
   background: #eaf3ff;
 }
 
-.tileOption img,
-.tileOption .eraserImg {
+.tileOption img {
   width: 24px;  /* smaller icons */
   height: 24px;
-}
-
-.eraserImg {
-  font-size: 18px; /* smaller broom emoji */
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 footer {
