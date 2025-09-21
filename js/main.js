@@ -5,10 +5,7 @@ import { loadMap } from './utils.js';
 
 const canvas = document.getElementById('gameCanvas');
 
-const FPS = 60; 
-let playerUpdateTimer = 0;
-const playerUpdateInterval = FPS / 3;
-const keysPressed = new Set();
+const FPS = 60;
 
 const GameState = Object.freeze({
   RUNNING: 0,
@@ -20,6 +17,11 @@ let gameState = GameState.RUNNING;
 let winTimer = 0;
 
 let game, player, bear;
+
+// Movement state
+let activeDirection = null;    // currently held key
+let moveCooldown = 0;          // frames until next allowed step
+const MOVE_DELAY = 10;         // smaller = faster repeat (10 = ~6 steps per second)
 
 // Handle custom map upload
 document.getElementById("customMapInput").addEventListener("change", async (e) => {
@@ -45,8 +47,39 @@ document.getElementById("customMapInput").addEventListener("change", async (e) =
 const pregenMap = await loadMap("maps/map1.txt");
 await initGame(pregenMap);
 
-document.addEventListener("keydown", e => keysPressed.add(e.key));
-document.addEventListener("keyup", e => keysPressed.delete(e.key));
+// Handle key press (start moving)
+document.addEventListener("keydown", e => {
+  if (gameState !== GameState.RUNNING) return;
+  if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) return;
+
+  if (activeDirection !== e.key) {
+    activeDirection = e.key;
+    doMove();
+    moveCooldown = MOVE_DELAY;
+  }
+  e.preventDefault();
+});
+
+// Handle key release (stop moving)
+document.addEventListener("keyup", e => {
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+    if (activeDirection === e.key) {
+      activeDirection = null;
+    }
+  }
+});
+
+function doMove() {
+  let dx = 0, dy = 0;
+  if (activeDirection === "ArrowUp") dy = -1;
+  else if (activeDirection === "ArrowDown") dy = 1;
+  else if (activeDirection === "ArrowLeft") dx = -1;
+  else if (activeDirection === "ArrowRight") dx = 1;
+
+  if (dx !== 0 || dy !== 0) {
+    player.move(dx, dy);
+  }
+}
 
 function getBearStartTile(map) {
   for (let y = 0; y < map.length; y++) {
@@ -70,22 +103,18 @@ async function initGame(map) {
   gameState = GameState.RUNNING;
 }
 
-function updatePlayer() {
-  let dx = 0, dy = 0;
-  if (keysPressed.has('ArrowUp')) dy -= 1;
-  if (keysPressed.has('ArrowDown')) dy += 1;
-  if (keysPressed.has('ArrowLeft')) dx -= 1;
-  if (keysPressed.has('ArrowRight')) dx += 1;
-  if (dx !== 0 || dy !== 0) player.move(dx, dy);
-}
-
 function gameLoop() {
   if (gameState === GameState.RUNNING) {
     game.updateCamera(player.x, player.y);
-    playerUpdateTimer++;
-    if (playerUpdateTimer >= playerUpdateInterval) {
-      updatePlayer();
-      playerUpdateTimer = 0;
+
+    // Handle hold-to-move
+    if (activeDirection) {
+      if (moveCooldown > 0) {
+        moveCooldown--;
+      } else {
+        doMove();
+        moveCooldown = MOVE_DELAY;
+      }
     }
 
     bear.updateAnimation();
