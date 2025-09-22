@@ -14,7 +14,7 @@
   <div id="overlay"></div>
 
   <h1 class="game-title">❄️ FrozenPaths ❄️</h1>
-  
+
   <!-- Canvas -->
   <canvas id="gameCanvas"></canvas>
 
@@ -24,9 +24,11 @@
 
     <!-- New Buttons -->
     <div class="menu">
-      <button id="createMapBtn" class="file-btn">🛠️ Create Custom Map</button>
+      <button id="createMapBtn" class="file-btn">🛠️ Create Map</button>
 
-      <label for="customMapInput" class="file-btn">📂 Load Custom Map</label>
+      <button id="editMapBtn" class="file-btn">✏️ Edit Map</button>
+
+      <label for="customMapInput" class="file-btn">📂 Load Map</label>
       <input type="file" id="customMapInput" accept=".txt" hidden />
     </div>
   </div>
@@ -34,11 +36,14 @@
   <!-- Main JS -->
   <script type="module" src="js/main.js"></script>
 
-  <!-- Map Editor redirect logic -->
+  <!-- Create Map redirect logic -->
   <script>
     document.getElementById('createMapBtn').addEventListener('click', () => {
-      window.location.href = "map-editor.html";
+      window.location.href = "map-creator.html";
     });
+    document.getElementById('editMapBtn').addEventListener('click', () => {
+      window.location.href = "map-editor.html";
+    })
   </script>
 </body>
 
