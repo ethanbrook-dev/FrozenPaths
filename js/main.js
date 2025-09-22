@@ -101,6 +101,9 @@ async function initGame(map) {
   bear = new Bear(game, bearStart.x, bearStart.y);
 
   gameState = GameState.RUNNING;
+
+  // Hide loader once everything is ready
+  document.getElementById("loadingScreen").style.display = "none";
 }
 
 function gameLoop() {
