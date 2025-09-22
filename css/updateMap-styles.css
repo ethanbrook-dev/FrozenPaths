@@ -230,3 +230,28 @@ footer button:hover {
   background: #2ecc71;
   box-shadow: 0 0 15px #2ecc71;
 }
+
+.mapSizeBox {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.mapSizeBox input {
+  width: 180px;
+  padding: 10px;
+  font-size: 1rem;
+  text-align: center;
+  border: 2px dashed #77c9f0;
+  border-radius: 10px;
+  background: #f9f9f9;
+  outline: none;
+  transition: 0.2s;
+  box-shadow: 0 0 6px #aee1f9;
+}
+
+.mapSizeBox input:hover,
+.mapSizeBox input:focus {
+  background: #eaf8ff;
+  box-shadow: 0 0 12px #77c9f0;
+}

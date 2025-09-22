@@ -2,41 +2,38 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Map Editor</title>
-    <link rel="stylesheet" href="css/updateMap-styles.css">
+  <meta charset="UTF-8">
+  <title>Map Editor</title>
+  <link rel="stylesheet" href="css/updateMap-styles.css">
 </head>
 
 <body>
-    <header>
-        <h1 class="editor-title">Create Your Map</h1>
-        <input id="mapName" type="text" placeholder="Map Name" />
-    </header>
+  <header>
+    <h1 class="editor-title">Create Your Map</h1>
+    <input id="mapName" type="text" placeholder="Map Name" />
+  </header>
 
-    <main id="editorMain">
-        <canvas id="editorCanvas"></canvas>
-        <div id="tilePalette"></div>
-    </main>
+  <main id="editorMain">
+    <canvas id="editorCanvas"></canvas>
+    <div id="tilePalette"></div>
+  </main>
 
-    <footer>
-        <button id="saveMapBtn">Save Map</button>
-    </footer>
+  <footer>
+    <button id="saveMapBtn">Save Map</button>
+  </footer>
 
-    <!-- Map Size Modal -->
-    <div id="mapSizeModal" class="modal">
-        <div class="modalContent">
-            <h2>New Map</h2>
-            <div class="mapSizeRow">
-                <label for="mapSizeInput">Map Size:</label>
-                <input type="number" id="mapSizeInput" min="10" max="10000" placeholder="e.g. 20">
-            </div>
-            <div class="buttonWrapper">
-                <button id="createMapBtn">Create</button>
-            </div>
-        </div>
+  <!-- Map Size Modal -->
+  <div id="mapSizeModal" class="modal">
+    <div class="modalContent">
+      <h2>New Map</h2>
+      <div class="mapSizeBox">
+        <input type="number" id="mapSizeInput" min="10" max="10000" placeholder="Enter size (e.g. 20)">
+      </div>
+      <button id="createMapBtn">Create</button>
     </div>
+  </div>
 
-    <script type="module" src="./js/create-map.js"></script>
+  <script type="module" src="./js/create-map.js"></script>
 </body>
 
 </html>
