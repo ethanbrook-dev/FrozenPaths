@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Map Editor</title>
+    <link rel="stylesheet" href="css/updateMap-styles.css">
+</head>
+
+<body>
+    <header>
+        <h1 class="editor-title">Edit Your Map</h1>
+        <input id="mapName" type="text" placeholder="Map Name" />
+    </header>
+
+    <main id="editorMain">
+        <canvas id="editorCanvas"></canvas>
+        <div id="tilePalette"></div>
+    </main>
+
+    <footer>
+        <button id="saveMapBtn">Save Map</button>
+    </footer>
+
+    <!-- Map Load Modal -->
+    <div id="mapLoadModal" class="modal">
+        <div class="modalContent">
+            <h2>Load Map</h2>
+            <input type="file" id="mapFileInput" accept=".txt" />
+            <button id="loadMapBtn">Load Map</button>
+        </div>
+    </div>
+
+    <script type="module" src="./js/edit-map.js"></script>
+</body>
+
+</html>
