@@ -62,6 +62,17 @@ maps/
 
 All season-specific character and tile assets belong under that season's folder: `assets/winter/`, `assets/spring/`, `assets/summer/`, or `assets/autumn/`. Winter's existing penguin, bear, and tile images are already organized in `assets/winter/`. The shared map-editor cursor, eraser, and start marker remain in `assets/map-editor/`.
 
+### Normalize asset image sizes (Windows)
+
+Run the included PowerShell script from the repository root after adding or replacing season images:
+
+```powershell
+.\scripts\normalize-season-assets.ps1 -WhatIf
+.\scripts\normalize-season-assets.ps1
+```
+
+The first command previews which files would change. The second overwrites PNGs inside the four season folders. Player sprites are fitted proportionally onto transparent 72 × 72 canvases; end-character and tile images use transparent 66 × 66 canvases. Artwork is centered and never stretched or cropped. The shared `assets/map-editor/` images are not modified. Commit or back up new artwork before normalizing, since the original files are replaced.
+
 Player animation uses **12 transparent PNGs**: three frames for each direction. Filenames and direction words must match the list above exactly. Use square images designed for a single tile (32 × 32 pixels is recommended); the game scales them to the tile size.
 
 The end character can have one or more transparent, square PNG frames. List their paths in `enderSprites` in animation order; the filenames are otherwise up to you. Tile images should also be square PNGs and are scaled to 32 × 32 pixels.
