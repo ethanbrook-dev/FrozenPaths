@@ -26,12 +26,63 @@ body {
   background: #357abd;
 }
 
+.file-btn:disabled,
+.file-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .game-title {
   text-align: center;
   color: #444;
   text-shadow: 0 0 10px #fff, 0 0 20px #aee1f9;
   margin: 10px 0;
   font-size: 2rem;
+}
+
+.season-picker {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 12px 4px;
+}
+
+.season-btn {
+  padding: 8px 16px;
+  color: #31546a;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid #77c9f0;
+  border-radius: 999px;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.season-btn:hover {
+  transform: translateY(-1px);
+  background: #eaf8ff;
+}
+
+.season-btn.selected {
+  color: white;
+  background: #357abd;
+  border-color: #357abd;
+}
+
+.season-btn:focus-visible,
+.file-btn:focus-visible {
+  outline: 3px solid #f1b544;
+  outline-offset: 2px;
+}
+
+#seasonStatus {
+  max-width: min(90vw, 800px);
+  margin: 4px 12px 10px;
+  color: #24465d;
+  text-align: center;
+  text-shadow: 0 0 5px white;
 }
 
 #gameCanvas {

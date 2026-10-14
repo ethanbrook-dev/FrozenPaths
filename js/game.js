@@ -1,4 +1,4 @@
-import { tileMapping, loadImage } from './utils.js';
+import { loadImage } from './utils.js';
 
 export const TILE_SIZE = 32;
 
@@ -7,12 +7,14 @@ export function calculateViewTileCount() {
 }
 
 export class Game {
-    constructor(canvas, map) {
+    constructor(canvas, map, season) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.tileSize = TILE_SIZE;
 
         this.map = map;
+        this.tileMapping = season.tileMapping;
+        this.walkableTiles = season.walkableTiles;
 
         this.tileImages = {};
 
@@ -28,20 +30,20 @@ export class Game {
         const uniqueTiles = new Set();
         this.map.forEach(row => row.forEach(tile => uniqueTiles.add(tile)));
 
-        for (let tile of uniqueTiles) {
-            if (tileMapping[tile]) {
-                const img = await loadImage(tileMapping[tile]);
-                const canvasImg = document.createElement('canvas');
-                canvasImg.width = this.tileSize;
-                canvasImg.height = this.tileSize;
-                const ctx = canvasImg.getContext('2d');
-                ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(img, 0, 0, this.tileSize, this.tileSize);
-
-                const finalImg = new Image();
-                finalImg.src = canvasImg.toDataURL();
-                this.tileImages[tile] = finalImg;
+        for (const tile of uniqueTiles) {
+            const path = this.tileMapping[tile];
+            if (!path) {
+                throw new Error(`Tile ${tile} has no image in this season's tile mapping.`);
             }
+
+            const img = await loadImage(path);
+            const canvasImg = document.createElement('canvas');
+            canvasImg.width = this.tileSize;
+            canvasImg.height = this.tileSize;
+            const ctx = canvasImg.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, 0, 0, this.tileSize, this.tileSize);
+            this.tileImages[tile] = canvasImg;
         }
     }
 

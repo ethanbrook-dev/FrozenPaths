@@ -1,14 +1,17 @@
 // js/map-editor.js
-import { tileMapping, loadImage } from './utils.js';
+import { loadImage, serializeMap, validateMapMarkers } from './utils.js';
 import { calculateViewTileCount, TILE_SIZE } from './game.js';
 import { updateCursor } from './cursor.js';
 import { createTool } from './createTool.js';
+import { getSeasonFromLocation } from './seasons.js';
 
 const canvas = document.getElementById("editorCanvas");
 const ctx = canvas.getContext("2d");
 const paletteDiv = document.getElementById("tilePalette");
 const saveBtn = document.getElementById("saveMapBtn");
 const mapNameInput = document.getElementById("mapName");
+const season = getSeasonFromLocation();
+document.querySelector(".editor-title").textContent += ` · ${season.label}`;
 
 // Map initialization
 let grid = [];        // will be filled after modal
@@ -134,7 +137,7 @@ canvas.addEventListener("mouseleave", stopScrolling);
 
 // ====== Load Palette ======
 async function loadPalette() {
-  for (const [num, path] of Object.entries(tileMapping)) {
+  for (const [num, path] of Object.entries(season.tileMapping || {})) {
     const container = document.createElement("div");
     container.className = "tileOption";
     container.dataset.tile = num;
@@ -145,7 +148,7 @@ async function loadPalette() {
     tileImg.width = TILE_SIZE;
     tileImg.height = TILE_SIZE;
     const label = document.createElement("p");
-    label.innerText = getTileLabel(num);
+    label.innerText = (season.tileNames && season.tileNames[num]) || `Tile ${num}`;
     container.appendChild(tileImg);
     container.appendChild(label);
     container.addEventListener("click", () => {
@@ -187,7 +190,13 @@ function paintAtEvent(e) {
 
 // ====== Save Map ======
 saveBtn.addEventListener("click", () => {
-  const defaultTile = 5;
+  try {
+    validateMapMarkers(grid);
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+  const defaultTile = season.defaultTile;
   const emptyTiles = grid.flat().filter(n => n === 0).length;
   if (emptyTiles > 0) {
     const confirmSwap = confirm(`There are ${emptyTiles} empty tiles. They will be replaced with default tile. Continue?`);
@@ -201,11 +210,11 @@ saveBtn.addEventListener("click", () => {
 
 function saveMapAndDownload() {
   const name = mapNameInput.value.trim() || "untitled";
-  const text = grid.map(row => row.map(n => String(n).padStart(2, "0")).join(" ")).join("\n");
+  const text = serializeMap(grid, season.key);
   const blob = new Blob([text], { type: "text/plain" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `${name}.txt`;
+  link.download = `${season.key}-${name}.txt`;
   link.click();
 }
 

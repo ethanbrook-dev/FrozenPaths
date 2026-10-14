@@ -4,7 +4,7 @@ export function loadImage(src) {
     const img = new Image();
     img.src = src;
     img.onload = () => resolve(img);
-    img.onerror = reject;
+    img.onerror = () => reject(new Error(`Unable to load image: ${src}`));
   });
 }
 
@@ -28,29 +28,52 @@ export function resizeImage(img, newSize) {
 // Load a text file (map) and parse into 2D array
 export async function loadMap(url) {
   const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Unable to load map (${res.status}): ${url}`);
+  }
   const text = await res.text();
-  return text.trim().split('\n').map(line => 
-    line.trim().split(' ').map(num => parseInt(num, 10))
-  );
+  return parseMapText(text).map;
 }
 
-// Tile number -> image path mapping
-export const tileMapping = {
-  1: 'assets/tiles/frozenflowers/frozenflower1.png',
-  2: 'assets/tiles/frozenflowers/frozenflower2.png',
-  3: 'assets/tiles/icecracks/icecrack1.png',
-  4: 'assets/tiles/icecracks/icecrack2.png',
-  5: 'assets/tiles/icetiles/icetile1.png',
-  6: 'assets/tiles/rocks/rock1.png',
-  7: 'assets/tiles/rocks/rock2.png',
-  8: 'assets/tiles/rocks/rock3.png',
-  9: 'assets/tiles/rocks/rock4.png',
-  10: 'assets/tiles/rocks/rock5.png',
-  11: 'assets/tiles/rocks/rock6.png',
-  12: 'assets/tiles/trees/tree1.png',
-  13: 'assets/tiles/trees/tree2.png',
-  14: 'assets/tiles/trees/tree3.png',
-  15: 'assets/tiles/snowman.png',
-  98: 'assets/bear/bear1.png', // end tile
-  99: 'assets/map-editor/startTile.png' // start tile
-};
+export function parseMapText(text) {
+  let seasonKey = null;
+  const rows = [];
+
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    const seasonMatch = trimmed.match(/^#\s*FrozenPaths\s+season:\s*([a-z]+)\s*$/i);
+    if (seasonMatch) {
+      seasonKey = seasonMatch[1].toLowerCase();
+      continue;
+    }
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    const row = trimmed.split(/\s+/).map(Number);
+    if (row.some(tile => !Number.isInteger(tile))) {
+      throw new Error('Map contains a tile value that is not a whole number.');
+    }
+    rows.push(row);
+  }
+
+  if (rows.length === 0 || rows[0].length === 0) {
+    throw new Error('Map is empty.');
+  }
+  if (rows.some(row => row.length !== rows[0].length)) {
+    throw new Error('Map rows must all have the same number of tiles.');
+  }
+
+  return { map: rows, seasonKey };
+}
+
+export function serializeMap(map, seasonKey) {
+  const rows = map.map(row => row.map(tile => String(tile).padStart(2, '0')).join(' '));
+  return [`# FrozenPaths season: ${seasonKey}`, ...rows].join('\n');
+}
+
+export function validateMapMarkers(map) {
+  const startCount = map.flat().filter(tile => tile === 99).length;
+  const endCount = map.flat().filter(tile => tile === 98).length;
+  if (startCount !== 1 || endCount !== 1) {
+    throw new Error('Map must contain exactly one start tile (99) and one end tile (98).');
+  }
+}

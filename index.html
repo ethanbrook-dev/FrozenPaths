@@ -15,6 +15,14 @@
 
   <h1 class="game-title">❄️ FrozenPaths ❄️</h1>
 
+  <nav class="season-picker" aria-label="Choose a season">
+    <button class="season-btn selected" type="button" data-season="winter" aria-pressed="true">❄️ Winter</button>
+    <button class="season-btn" type="button" data-season="spring" aria-pressed="false">🌷 Spring</button>
+    <button class="season-btn" type="button" data-season="summer" aria-pressed="false">☀️ Summer</button>
+    <button class="season-btn" type="button" data-season="autumn" aria-pressed="false">🍂 Autumn</button>
+  </nav>
+  <p id="seasonStatus" role="status" aria-live="polite">Loading Winter...</p>
+
   <!-- Loading Screen -->
   <div id="loadingScreen">
     <div class="loader"></div>
@@ -22,11 +30,11 @@
   </div>
 
   <!-- Canvas -->
-  <canvas id="gameCanvas"></canvas>
+  <canvas id="gameCanvas" width="800" height="480"></canvas>
 
   <!-- UI -->
   <div class="ui">
-    <p id="message">Find the bear!</p>
+    <p id="message">Find the end character!</p>
 
     <!-- New Buttons -->
     <div class="menu">
@@ -34,23 +42,13 @@
 
       <button id="editMapBtn" class="file-btn">✏️ Edit Map</button>
 
-      <label for="customMapInput" class="file-btn">📂 Load Map</label>
+      <label id="loadMapLabel" for="customMapInput" class="file-btn">📂 Load Map</label>
       <input type="file" id="customMapInput" accept=".txt" hidden />
     </div>
   </div>
 
   <!-- Main JS -->
   <script type="module" src="js/main.js"></script>
-
-  <!-- Create Map redirect logic -->
-  <script>
-    document.getElementById('createMapBtn').addEventListener('click', () => {
-      window.location.href = "map-creator.html";
-    });
-    document.getElementById('editMapBtn').addEventListener('click', () => {
-      window.location.href = "map-editor.html";
-    })
-  </script>
 </body>
 
 </html>

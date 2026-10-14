@@ -1,6 +1,9 @@
+import { loadImage } from './utils.js';
+
 export class Player {
-    constructor(game) {
+    constructor(game, spriteDirectory) {
         this.game = game;
+        this.spriteDirectory = spriteDirectory;
         const start = this.findStartTile();
         this.x = start.x;
         this.y = start.y;
@@ -12,17 +15,16 @@ export class Player {
 
         this.moving = false;
 
-        // Preload sprites
         this.sprites = {};
+    }
+
+    async loadSprites() {
         const moves = ['forward', 'backwards', 'left', 'right'];
-        for (let move of moves) {
-            this.sprites[move] = [];
-            for (let i = 1; i <= 3; i++) {
-                const img = new Image();
-                img.src = `assets/penguin/walk-${move}-${i}.png`;
-                this.sprites[move].push(img);
-            }
-        }
+        await Promise.all(moves.map(async move => {
+            this.sprites[move] = await Promise.all(
+                [1, 2, 3].map(frame => loadImage(`${this.spriteDirectory}/walk-${move}-${frame}.png`))
+            );
+        }));
     }
 
     findStartTile() {
@@ -34,10 +36,10 @@ export class Player {
                 }
             }
         }
-        // fallback to first ice tile if no 99 in map file
+        // Fall back to the season's ground tile if no start marker exists.
         for (let y = 0; y < map.length; y++) {
             for (let x = 0; x < map[y].length; x++) {
-                if (map[y][x] === 5) return { x, y };
+                if (this.game.walkableTiles.includes(map[y][x])) return { x, y };
             }
         }
         return { x: 0, y: 0 };
@@ -69,8 +71,7 @@ export class Player {
             }
         }
 
-        // Only move if tile 5 or 98
-        if (map[newY][newX] === 5 || map[newY][newX] === 98) {
+        if (this.game.walkableTiles.includes(map[newY][newX])) {
             this.x = newX;
             this.y = newY;
             this.moving = true;

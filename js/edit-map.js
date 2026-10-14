@@ -1,14 +1,17 @@
 // js/edit-map.js
-import { tileMapping, loadImage } from './utils.js';
+import { loadImage, parseMapText, serializeMap, validateMapMarkers } from './utils.js';
 import { calculateViewTileCount, TILE_SIZE } from './game.js';
 import { updateCursor } from './cursor.js';
 import { createTool } from './createTool.js';
+import { getSeason, getSeasonFromLocation } from './seasons.js';
 
 const canvas = document.getElementById("editorCanvas");
 const ctx = canvas.getContext("2d");
 const paletteDiv = document.getElementById("tilePalette");
 const saveBtn = document.getElementById("saveMapBtn");
 const mapNameInput = document.getElementById("mapName");
+const season = getSeasonFromLocation();
+document.querySelector(".editor-title").textContent += ` · ${season.label}`;
 
 // Map state
 let grid = [];
@@ -128,7 +131,7 @@ canvas.addEventListener("mouseleave", stopScrolling);
 
 // ====== Palette ======
 async function loadPalette() {
-  for (const [num, path] of Object.entries(tileMapping)) {
+  for (const [num, path] of Object.entries(season.tileMapping || {})) {
     const container = document.createElement("div");
     container.className = "tileOption";
     container.dataset.tile = num;
@@ -139,7 +142,7 @@ async function loadPalette() {
     tileImg.width = TILE_SIZE;
     tileImg.height = TILE_SIZE;
     const label = document.createElement("p");
-    label.innerText = getTileLabel(num);
+    label.innerText = (season.tileNames && season.tileNames[num]) || `Tile ${num}`;
     container.appendChild(tileImg);
     container.appendChild(label);
     container.addEventListener("click", () => {
@@ -181,7 +184,13 @@ function paintAtEvent(e) {
 
 // ====== Save Map ======
 saveBtn.addEventListener("click", () => {
-  const defaultTile = 5;
+  try {
+    validateMapMarkers(grid);
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+  const defaultTile = season.defaultTile;
   const emptyTiles = grid.flat().filter(n => n === 0).length;
   if (emptyTiles > 0) {
     const confirmSwap = confirm(`There are ${emptyTiles} empty tiles. They will be replaced with default tile. Continue?`);
@@ -195,11 +204,11 @@ saveBtn.addEventListener("click", () => {
 
 function saveMapAndDownload() {
   const name = mapNameInput.value.trim() || "untitled";
-  const text = grid.map(row => row.map(n => String(n).padStart(2, "0")).join(" ")).join("\n");
+  const text = serializeMap(grid, season.key);
   const blob = new Blob([text], { type: "text/plain" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = `${name}.txt`;
+  link.download = `${season.key}-${name}.txt`;
   link.click();
 }
 
@@ -226,14 +235,32 @@ loadBtn.addEventListener("click", async () => {
     return;
   }
 
-  const text = await file.text();
-  const rows = text.trim().split("\n");
-  gridHeight = rows.length;
-  gridWidth = rows[0].trim().split(/\s+/).length;
-
-  grid = rows.map(row =>
-    row.trim().split(/\s+/).map(n => parseInt(n, 10))
-  );
+  let parsed;
+  try {
+    parsed = parseMapText(await file.text());
+    if (parsed.seasonKey && parsed.seasonKey !== season.key) {
+      const taggedSeason = getSeason(parsed.seasonKey);
+      if (taggedSeason.key !== parsed.seasonKey) {
+        throw new Error(`Unknown map season: ${parsed.seasonKey}.`);
+      }
+      throw new Error(`This map is tagged for ${parsed.seasonKey}, not ${season.label}.`);
+    }
+    if (!parsed.seasonKey && season.key !== "winter") {
+      throw new Error("This legacy map has no season tag and can only be edited in Winter.");
+    }
+  } catch (error) {
+    alert(`Could not load map: ${error.message}`);
+    return;
+  }
+  grid = parsed.map;
+  try {
+    validateMapMarkers(grid);
+  } catch (error) {
+    alert(error.message);
+    return;
+  }
+  gridHeight = grid.length;
+  gridWidth = grid[0].length;
 
   canvas.width = viewWidth * TILE_SIZE;
   canvas.height = viewHeight * TILE_SIZE;
