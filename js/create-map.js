@@ -1,5 +1,5 @@
 // js/map-editor.js
-import { loadImage, serializeMap, validateMapMarkers } from './utils.js';
+import { loadEndTileImage, loadImage, serializeMap, validateMapMarkers } from './utils.js';
 import { calculateViewTileCount, TILE_SIZE } from './game.js';
 import { updateCursor } from './cursor.js';
 import { createTool } from './createTool.js';
@@ -141,10 +141,12 @@ async function loadPalette() {
     const container = document.createElement("div");
     container.className = "tileOption";
     container.dataset.tile = num;
-    const img = await loadImage(path);
+    const img = num === "98"
+      ? await loadEndTileImage(season.tileMapping[season.defaultTile], path, TILE_SIZE)
+      : await loadImage(path);
     tileImages[num] = img;
     const tileImg = document.createElement("img");
-    tileImg.src = path;
+    tileImg.src = num === "98" ? img.toDataURL() : path;
     tileImg.width = TILE_SIZE;
     tileImg.height = TILE_SIZE;
     const label = document.createElement("p");

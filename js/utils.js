@@ -8,6 +8,25 @@ export function loadImage(src) {
   });
 }
 
+export async function loadEndTileImage(groundSrc, characterSrc, size) {
+  const [ground, character] = await Promise.all([
+    loadImage(groundSrc),
+    loadImage(characterSrc),
+  ]);
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Unable to create canvas context for end tile.');
+  }
+
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(ground, 0, 0, size, size);
+  ctx.drawImage(character, 0, 0, size, size);
+  return canvas;
+}
+
 //Resize image to new size using canvas
 export function resizeImage(img, newSize) {
   const canvas = document.createElement('canvas');

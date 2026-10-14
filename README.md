@@ -75,7 +75,7 @@ The first command previews which files would change. The second overwrites PNGs 
 
 Player animation uses **12 transparent PNGs**: three frames for each direction. Filenames and direction words must match the list above exactly. Use square images designed for a single tile (32 × 32 pixels is recommended); the game scales them to the tile size.
 
-The end character can have one or more transparent, square PNG frames. List their paths in `enderSprites` in animation order; the filenames are otherwise up to you. Tile images should also be square PNGs and are scaled to 32 × 32 pixels.
+The end character can have one or more transparent, square PNG frames. List their paths in `enderSprites` in animation order; the filenames are otherwise up to you. Tile ID `98` is rendered over that season's default ground tile, so keep end-character backgrounds transparent to let the ground show through. Tile images should also be square PNGs and are scaled to 32 × 32 pixels.
 
 Example season configuration:
 

@@ -1,4 +1,4 @@
-import { loadImage } from './utils.js';
+import { loadEndTileImage, loadImage } from './utils.js';
 
 export const TILE_SIZE = 32;
 
@@ -15,6 +15,7 @@ export class Game {
         this.map = map;
         this.tileMapping = season.tileMapping;
         this.walkableTiles = season.walkableTiles;
+        this.defaultTile = season.defaultTile;
 
         this.tileImages = {};
 
@@ -34,6 +35,15 @@ export class Game {
             const path = this.tileMapping[tile];
             if (!path) {
                 throw new Error(`Tile ${tile} has no image in this season's tile mapping.`);
+            }
+
+            if (tile === 98) {
+                const groundPath = this.tileMapping[this.defaultTile];
+                if (!groundPath) {
+                    throw new Error(`Default ground tile ${this.defaultTile} has no image in this season's tile mapping.`);
+                }
+                this.tileImages[tile] = await loadEndTileImage(groundPath, path, this.tileSize);
+                continue;
             }
 
             const img = await loadImage(path);
