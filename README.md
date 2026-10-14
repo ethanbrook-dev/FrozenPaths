@@ -37,9 +37,9 @@ assets/
       walk-right-2.png
       walk-right-3.png
     characters/
-      bear-1.png
-      bear-2.png
-      bear-3.png
+      bear1.png
+      bear2.png
+      bear3.png
     tiles/
       snowman.png
       frozenflower1.png
