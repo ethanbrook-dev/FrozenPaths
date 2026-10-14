@@ -34,12 +34,16 @@ foreach ($file in $pngFiles) {
         }
     }
 
+    if (-not $category -and $relativePath -match '(?i)^[^\\]+\\[^\\]+-startTile\.png$') {
+        $category = 'startTile'
+    }
+
     if (-not $category) {
-        Write-Warning "Skipping PNG outside a player, characters, or tiles folder: $relativePath"
+        Write-Warning "Skipping PNG outside a player, characters, tiles, or season start-marker folder: $relativePath"
         continue
     }
 
-    $targetSize = $targets[$category]
+    $targetSize = if ($category -eq 'startTile') { 66 } else { $targets[$category] }
     $source = $null
     $canvas = $null
     $graphics = $null

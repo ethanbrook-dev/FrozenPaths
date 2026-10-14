@@ -12,11 +12,11 @@ Live site: <https://frozenpaths.netlify.app>
 - Maps saved by either editor include a season tag. Load a map only while its matching season is selected.
 - Older maps without a season tag are treated as Winter maps.
 
-Spring, Summer, and Autumn are shown as setup placeholders until their assets and configuration are added.
+Winter, Spring, Summer, and Autumn each have their own character sprites, tile palette, collision rules, and starter map.
 
 ## Adding a season
 
-Each season has its own map, tiles, player character, and end character. Add the images to the repository, then replace that season's `unavailableSeason(...)` entry in [`js/seasons.js`](./js/seasons.js) with a configured object. Winter in that file is the working example.
+Each season's character sprites, tiles, movement rules, and starter map are configured in [`js/seasons.js`](./js/seasons.js). The existing seasons are examples for adding another season.
 
 Suggested folder layout:
 
@@ -60,7 +60,7 @@ maps/
   spring-map.txt
 ```
 
-All season-specific character and tile assets belong under that season's folder: `assets/winter/`, `assets/spring/`, `assets/summer/`, or `assets/autumn/`. Winter's existing penguin, bear, and tile images are already organized in `assets/winter/`. The shared map-editor cursor, eraser, and start marker remain in `assets/map-editor/`.
+All season-specific character, tile, and start-marker assets belong under that season's folder: `assets/winter/`, `assets/spring/`, `assets/summer/`, or `assets/autumn/`. Each season uses its own `<season>-startTile.png` for tile ID `99`. The cursor and eraser remain shared in `assets/map-editor/`.
 
 ### Normalize asset image sizes (Windows)
 
@@ -71,7 +71,7 @@ Run the included PowerShell script from the repository root after adding or repl
 .\scripts\normalize-season-assets.ps1
 ```
 
-The first command previews which files would change. The second overwrites PNGs inside the four season folders. Player sprites are fitted proportionally onto transparent 72 × 72 canvases; end-character and tile images use transparent 66 × 66 canvases. Artwork is centered and never stretched or cropped. The shared `assets/map-editor/` images are not modified. Commit or back up new artwork before normalizing, since the original files are replaced.
+The first command previews which files would change. The second overwrites PNGs inside the four season folders. Player sprites are fitted proportionally onto transparent 72 × 72 canvases; end-character, tile, and season start-marker images use transparent 66 × 66 canvases. Artwork is centered and never stretched or cropped. The shared `assets/map-editor/` images are not modified. Commit or back up new artwork before normalizing, since the original files are replaced.
 
 Player animation uses **12 transparent PNGs**: three frames for each direction. Filenames and direction words must match the list above exactly. Use square images designed for a single tile (32 × 32 pixels is recommended); the game scales them to the tile size.
 
@@ -84,7 +84,6 @@ spring: {
   key: 'spring',
   label: 'Spring',
   icon: '🌷',
-  configured: true,
   mapPath: 'maps/spring-map.txt',
   playerSpriteDirectory: 'assets/spring/player',
   enderSprites: [
@@ -97,7 +96,7 @@ spring: {
     5: 'assets/spring/tiles/grass.png',
     6: 'assets/spring/tiles/tree.png',
     98: 'assets/spring/characters/cow-1.png',
-    99: 'assets/map-editor/startTile.png',
+    99: 'assets/spring/spring-startTile.png',
   },
   tileNames: {
     1: 'Flowers',
@@ -111,12 +110,14 @@ spring: {
 },
 ```
 
-Keep the tile marker IDs consistent:
+For Spring, Summer, and Autumn, tile IDs `1` through `4`, then `6` upward, are assigned to the images in `tiles/obstacles`. The ground image uses tile ID `5`, and additional images in `tiles/walkable` get IDs after the obstacles. Obstacle IDs are omitted from `walkableTiles`, so collision prevents the player entering them. Both ground and additional walkable tile IDs belong in `walkableTiles`.
+
+Keep the marker IDs consistent:
 
 - `5` is the default ground tile and should be in `walkableTiles`.
 - `98` is the end marker. It is also walkable so the player can reach the end.
 - `99` is the start marker.
-- Use other IDs from `1` to `97` for that season's scenery and obstacles. Only include a tile in `walkableTiles` if the player may move onto it.
+- Use other IDs from `1` to `97` for that season's scenery. Only include a tile in `walkableTiles` if the player may move onto it.
 
 Tile IDs are interpreted using the selected season's `tileMapping`, so the same ID can use different artwork in different seasons. Every tile ID used by a map must have an image path in that season's mapping. The editor builds its palette from the same mapping.
 
@@ -133,7 +134,7 @@ Maps are whitespace-separated tile IDs, with one row per line. New maps start wi
 
 The map must be rectangular and contain exactly one `99` start and one `98` end. The season header is written by both editors and prevents a map from being loaded into the wrong tile set. Existing untagged maps remain supported as Winter maps.
 
-To add a built-in map for a season, put its `.txt` file under `maps/` and set `mapPath` in that season's configuration.
+Each season has a starter map in `maps/`. To add or replace a built-in map, put its `.txt` file under `maps/` and set `mapPath` in that season's configuration.
 
 ## Project files
 

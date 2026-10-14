@@ -65,7 +65,8 @@ export class Player {
 
         // Diagonal move: prevent corner-cutting
         if (dx !== 0 && dy !== 0) {
-            if (map[this.y + dy][this.x] !== 5 || map[this.y][this.x + dx] !== 5) {
+            if (!this.game.walkableTiles.includes(map[this.y + dy][this.x])
+                || !this.game.walkableTiles.includes(map[this.y][this.x + dx])) {
                 this.moving = false;
                 return;
             }
